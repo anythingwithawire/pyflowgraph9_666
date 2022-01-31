@@ -201,6 +201,9 @@ class PortCircle(QtWidgets.QGraphicsWidget):
     def isOutConnectionPoint(self):
         return self._connectionPointType == 'Out'
 
+    def isGlandConnectionPoint(self):
+        return self._connectionPointType == 'Gland'
+
     def supportsOnlySingleConnections(self):
         return self._supportsOnlySingleConnections
 
@@ -289,6 +292,9 @@ class PortCircle(QtWidgets.QGraphicsWidget):
             MouseGrabber(self._graph, scenePos, self, 'Out')
         elif self.isOutConnectionPoint():
             MouseGrabber(self._graph, scenePos, self, 'In')
+        elif self.isGlandConnectionPoint():
+            MouseGrabber(self._graph, scenePos, self, 'Gland')
+
 
 
     # def paint(self, painter, option, widget):
@@ -466,5 +472,15 @@ class IOPort(BasePort):
         self.setInCircle(PortCircle(self, graph, -2, color, 'In'))
         self.setLabelItem(PortLabel(self, self._name, 0, self._labelColor, self._labelHighlightColor))
         self.setOutCircle(PortCircle(self, graph, 2, color, 'Out'))
+
+
+
+class GlandPort(BasePort):
+
+    def __init__(self, parent, graph, name, color, dataType, x=0, y=0):
+        super(GlandPort, self).__init__(parent, graph, name, color, dataType, 'Gland')
+
+        self.setInCircle(PortCircle(self, graph, -2, color, 'Gland'))
+        self.setLabelItem(PortLabel(self, self._name, 0, self._labelColor, self._labelHighlightColor))
 
 

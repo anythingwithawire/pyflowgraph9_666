@@ -8,7 +8,7 @@ import json
 
 from PySide2.QtCore import QPointF
 from qtpy import QtGui, QtWidgets, QtCore
-from .port import InputPort, OutputPort
+from .port import InputPort, OutputPort, GlandPort
 from .port import BasePort
 
 class NodeTitle(QtWidgets.QGraphicsWidget):
@@ -169,11 +169,15 @@ class Node(QtWidgets.QGraphicsWidget):
         #self.setWindowFlags(QtCore.Qt.SubWindow)
         #self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
-        p = InputPort(self, self.__graph, "GlandIn", self.__defaultColor, "Gland", -200, 30)
-        self.addPort(p, -150, 30)
+        p = GlandPort(self, self.__graph, "Gland", self.__defaultColor, "Gland", -200, -20)
+        self.addPort(p, -150, 20)
+        self.nextInPort = 40
 
-        p = OutputPort(self, self.__graph, "GlandOut", self.__defaultColor, "Gland", 200, 30)
-        self.addPort(p,xSize/2 + 150, 30)
+
+
+        p = GlandPort(self, self.__graph, "Gland", self.__defaultColor, "Gland", 200, -20)
+        self.addPort(p,xSize + 150, 20)
+        self.nextOutPort = 40
 
         self.__selected = False
         self.__dragging = False
