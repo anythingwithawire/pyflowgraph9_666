@@ -49,8 +49,8 @@ class GraphView(QtWidgets.QGraphicsView):
     _clipboardData = None
 
     _backgroundColor = QtGui.QColor(50, 50, 50)
-    _gridPenS = QtGui.QPen(QtGui.QColor(44, 44, 44, 255), 0.5)
-    _gridPenL = QtGui.QPen(QtGui.QColor(40, 40, 40, 255), 1.0)
+    _gridPenS = QtGui.QPen(QtGui.QColor(25, 44, 44, 255), 0.5)
+    _gridPenL = QtGui.QPen(QtGui.QColor(25, 40, 240, 255), 1.0)
     _gridSizeFine = 30
     _gridSizeCourse = 300
 
@@ -72,12 +72,13 @@ class GraphView(QtWidgets.QGraphicsView):
 
         # Explicitly set the scene rect. This ensures all view parameters will be explicitly controlled
         # in the event handlers of this class.
-        size = QtCore.QSize(600, 400);
+        size = QtCore.QSize(600, 400)
         self.resize(size)
         self.setSceneRect(-size.width() * 0.5, -size.height() * 0.5, size.width(), size.height())
 
         self.setAcceptDrops(True)
-        self.reset()
+        self.reset()                    #set GraphicsScene in here
+
 
 
     def getGraphViewWidget(self):
@@ -356,7 +357,8 @@ class GraphView(QtWidgets.QGraphicsView):
     def removeConnection(self, connection, emitSignal=True):
 
         connection.disconnect()
-        self.__connections.remove(connection)
+        if connection in self.__connections:
+            self.__connections.remove(connection)
         self.scene().removeItem(connection)
         if emitSignal:
             self.connectionRemoved.emit(connection)
@@ -392,7 +394,7 @@ class GraphView(QtWidgets.QGraphicsView):
         if not targetPort:
             raise Exception("Node '" + targetNode.getName() + "' does not have input:" + inputName)
 
-        connection = Connection(self, sourcePort.outCircle(), targetPort.inCircle())
+        connection = Connection(self, sourcePort, targetPort)
         self.addConnection(connection, emitSignal=False)
 
         return connection

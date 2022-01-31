@@ -9,6 +9,7 @@ from qtpy import QtGui, QtWidgets, QtCore
 
 class PortLabel(QtWidgets.QGraphicsWidget):
     __font = QtGui.QFont('Decorative', 12)
+    __smallFont = QtGui.QFont('Decorative', 8)
     __fontMetrics = QtGui.QFontMetrics(__font)
 
     def __init__(self, port, text, hOffset, color, highlightColor):
@@ -33,7 +34,7 @@ class PortLabel(QtWidgets.QGraphicsWidget):
         self.setHOffset(hOffset)
 
         self.setAcceptHoverEvents(True)
-        self.__mousDownPos = None
+        self.__mouseDownPos = None
 
     def text(self):
         return self.__text
@@ -103,8 +104,8 @@ class PortLabel(QtWidgets.QGraphicsWidget):
 
 class PortCircle(QtWidgets.QGraphicsWidget):
 
-    __radius = 4.5
-    __diameter = 2 * __radius
+    __radius = 6                         #was 4.5
+    __diameter = 2 * __radius              #was 2
 
     def __init__(self, port, graph, hOffset, color, connectionPointType):
         super(PortCircle, self).__init__(port)
@@ -113,7 +114,7 @@ class PortCircle(QtWidgets.QGraphicsWidget):
         self._graph = graph
         self._connectionPointType = connectionPointType
         self.__connections = set()
-        self._supportsOnlySingleConnections = connectionPointType == 'In'
+        self._supportsOnlySingleConnections = False #connectionPointType == 'In'
 
         self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed))
         size = QtCore.QSizeF(self.__diameter, self.__diameter)
@@ -125,18 +126,18 @@ class PortCircle(QtWidgets.QGraphicsWidget):
         self.__defaultPen = QtGui.QPen(QtGui.QColor(25, 25, 25), 1.0)
         self.__hoverPen = QtGui.QPen(QtGui.QColor(255, 255, 100), 1.5)
 
-        self._ellipseItem = QtWidgets.QGraphicsEllipseItem(self)
+        self._ellipseItem = QtWidgets.QGraphicsRectItem(self)
         self._ellipseItem.setPen(self.__defaultPen)
-        self._ellipseItem.setPos(size.width()/2, size.height()/2)
+        self._ellipseItem.setPos(size.width()/2 - self.__radius/4 + 1, size.height()/2)
         self._ellipseItem.setRect(
             -self.__radius,
             -self.__radius,
             self.__diameter,
             self.__diameter,
             )
-        if connectionPointType == 'In':
-            self._ellipseItem.setStartAngle(270 * 16)
-            self._ellipseItem.setSpanAngle(180 * 16)
+        #if connectionPointType == 'In':
+        #    self._ellipseItem.setStartAngle(270 * 16)
+        #    self._ellipseItem.setSpanAngle(180 * 16)
 
         self.setColor(color)
         self.setAcceptHoverEvents(True)
@@ -322,7 +323,7 @@ class BasePort(QtWidgets.QGraphicsWidget):
     _labelColor = QtGui.QColor(25, 25, 25)
     _labelHighlightColor = QtGui.QColor(225, 225, 225, 255)
 
-    def __init__(self, parent, graph, name, color, dataType, connectionPointType):
+    def __init__(self, parent, graph, name, color, dataType, connectionPointType, x=0, y=0):
         super(BasePort, self).__init__(parent)
 
         self._node = parent
@@ -439,7 +440,7 @@ class BasePort(QtWidgets.QGraphicsWidget):
 
 class InputPort(BasePort):
 
-    def __init__(self, parent, graph, name, color, dataType):
+    def __init__(self, parent, graph, name, color, dataType="default", x=0, y=0):
         super(InputPort, self).__init__(parent, graph, name, color, dataType, 'In')
 
         self.setInCircle(PortCircle(self, graph, -2, color, 'In'))
@@ -449,7 +450,7 @@ class InputPort(BasePort):
 
 class OutputPort(BasePort):
 
-    def __init__(self, parent, graph, name, color, dataType):
+    def __init__(self, parent, graph, name, color, dataType, x=0, y=0):
         super(OutputPort, self).__init__(parent, graph, name, color, dataType, 'Out')
 
         self.setLabelItem(PortLabel(self, self._name, 10, self._labelColor, self._labelHighlightColor))

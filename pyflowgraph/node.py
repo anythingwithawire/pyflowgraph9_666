@@ -5,31 +5,37 @@
 
 import math
 import json
+
+from PySide2.QtCore import QPointF
 from qtpy import QtGui, QtWidgets, QtCore
 from .port import InputPort, OutputPort
+from .port import BasePort
 
 class NodeTitle(QtWidgets.QGraphicsWidget):
 
     __color = QtGui.QColor(25, 25, 25)
-    __font = QtGui.QFont('Decorative', 14)
+    __font = QtGui.QFont('Decorative', 12)
     __font.setLetterSpacing(QtGui.QFont.PercentageSpacing, 115)
     __labelBottomSpacing = 12
 
     def __init__(self, text, parent=None):
         super(NodeTitle, self).__init__(parent)
 
-        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed))
+        #self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed))
+        self.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
 
         self.__textItem = QtWidgets.QGraphicsTextItem(text, self)
         self.__textItem.setDefaultTextColor(self.__color)
         self.__textItem.setFont(self.__font)
-        self.__textItem.setPos(0, -2)
+        self.__textItem.setPos(QPointF(0, -2))
         option = self.__textItem.document().defaultTextOption()
         option.setWrapMode(QtGui.QTextOption.NoWrap)
         self.__textItem.document().setDefaultTextOption(option)
         self.__textItem.adjustSize()
 
         self.setPreferredSize(self.textSize())
+
+
 
     def setText(self, text):
         self.__textItem.setPlainText(text)
@@ -53,21 +59,31 @@ class NodeHeader(QtWidgets.QGraphicsWidget):
     def __init__(self, text, parent=None):
         super(NodeHeader, self).__init__(parent)
 
-        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
+        #self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
+        self.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
 
-        layout = QtWidgets.QGraphicsLinearLayout()
+        layout = QtWidgets.QGraphicsLinearLayout(QtCore.Qt.Vertical, self)   #QtWidgets.QGraphicsLayoutItem.parentLayoutItem(parent))
+
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(3)
-        layout.setOrientation(QtCore.Qt.Horizontal)
-        self.setLayout(layout)
+        layout.setOrientation(QtCore.Qt.Vertical)
+        #self.setLayout(layout)
 
+        #layout = QtWidgets.QGraphicsSimpleTextItem(NodeTitle(text, self))
+        #layout.setX(0)
+        #layout.setY(-100)
         self._titleWidget = NodeTitle(text, self)
+
         layout.addItem(self._titleWidget)
-        layout.setAlignment(self._titleWidget, QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop)
+        layout.setAlignment(self._titleWidget, QtCore.Qt.AlignCenter)   # | QtCore.Qt.AlignTop)
+
+        self.setLayout(layout)
+        #self.adjustSize()
 
 
     def setText(self, text):
         self._titleWidget.setText(text)
+
 
     # def paint(self, painter, option, widget):
     #     super(NodeHeader, self).paint(painter, option, widget)
@@ -78,17 +94,24 @@ class NodeHeader(QtWidgets.QGraphicsWidget):
 class PortList(QtWidgets.QGraphicsWidget):
     def __init__(self, parent):
         super(PortList, self).__init__(parent)
-        layout = QtWidgets.QGraphicsLinearLayout()
+        layout = QtWidgets.QGraphicsLinearLayout(None, None)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(7)
         layout.setOrientation(QtCore.Qt.Vertical)
         self.setLayout(layout)
+        #self.__maxX = 20
+        #self.__maxY = 20
 
-    def addPort(self, port, alignment):
+
+    def addPort(self, port, alignment, x=0, y=0):
         layout = self.layout()
-        layout.addItem(port)
+        print("addPort : ", x, y)
+        layout.addItem(port.setPos(x, y))
         layout.setAlignment(port, alignment)
-        self.adjustSize()
+        #self.adjustSize()
+        port.__x = x
+        port.__y = y
+
         return port
 
     # def paint(self, painter, option, widget):
@@ -102,32 +125,35 @@ class Node(QtWidgets.QGraphicsWidget):
 
     __defaultColor = QtGui.QColor(154, 205, 50, 255)
     __unselectedColor = QtGui.QColor(25, 25, 25)
-    __selectedColor = QtGui.QColor(255, 255, 255, 255)
+    __selectedColor = QtGui.QColor(255, 0, 0, 255)
 
     __unselectedPen = QtGui.QPen(__unselectedColor, 1.6)
-    __selectedPen = QtGui.QPen(__selectedColor, 1.6)
+    __selectedPen = QtGui.QPen(__selectedColor, 3.6)
     __linePen = QtGui.QPen(QtGui.QColor(25, 25, 25, 255), 1.25)
 
-    def __init__(self, graph, name):
-        super(Node, self).__init__()
+    def __init__(self, graph, name, xSize=80, ySize=20):
+        super(Node, self).__init__(None)
 
         self.__name = name
         self.__graph = graph
         self.__color = self.__defaultColor
 
-        self.setMinimumWidth(60)
-        self.setMinimumHeight(20)
-        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
+        self.setMinimumWidth(xSize)
+        self.setMinimumHeight(ySize)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        #self.setSizePolicy(QtWidgets.QSizePolicy(QtWidget
 
-        layout = QtWidgets.QGraphicsLinearLayout()
+
+        layout = QtWidgets.QGraphicsLinearLayout(None, None)
         layout.setContentsMargins(5, 0, 5, 7)
         layout.setSpacing(7)
         layout.setOrientation(QtCore.Qt.Vertical)
-        self.setLayout(layout)
+        #self.setLayout(layout)
+
 
         self.__headerItem = NodeHeader(self.__name, self)
         layout.addItem(self.__headerItem)
-        layout.setAlignment(self.__headerItem, QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop)
+        layout.setAlignment(self.__headerItem, QtCore.Qt.AlignTop)    #QtCore.Qt.AlignCenter |
 
         self.__ports = []
         self.__inputPortsHolder = PortList(self)
@@ -138,12 +164,42 @@ class Node(QtWidgets.QGraphicsWidget):
         layout.addItem(self.__ioPortsHolder)
         layout.addItem(self.__outputPortsHolder)
 
+        self.setWindowFlags(QtCore.Qt.SubWindow)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        #self.setWindowFlags(QtCore.Qt.SubWindow)
+        #self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+
+        p = InputPort(self, self.__graph, "GlandIn", self.__defaultColor, "Gland", -200, 30)
+        self.addPort(p, -150, 30)
+
+        p = OutputPort(self, self.__graph, "GlandOut", self.__defaultColor, "Gland", 200, 30)
+        self.addPort(p,xSize/2 + 150, 30)
+
         self.__selected = False
         self.__dragging = False
+
+        #self.adjustSize()
 
     # =====
     # Name
     # =====
+
+    def getNode(self, name):
+        for n in self.__graph.__nodes:
+            if n.__name == name:
+                return n
+
+    def setWidth(self, width):
+        self.setMinimumWidth(width)
+        self.setMaximumWidth(width)
+
+    def setHeight(self, height):
+        self.setMinimumHeight(height)
+        self.setMaximumHeight(height)
+
+    def getWidth(self):
+        return self.minimumWidth()
+
     def getName(self):
         return self.__name
 
@@ -157,7 +213,7 @@ class Node(QtWidgets.QGraphicsWidget):
             self.nameChanged.emit(origName, name)
 
             # Update the node so that the size is computed.
-            self.adjustSize()
+            #self.adjustSize()
 
     # =======
     # Colors
@@ -244,13 +300,15 @@ class Node(QtWidgets.QGraphicsWidget):
     #########################
     ## Ports
 
-    def addPort(self, port):
+    def addPort(self, port, x, y):
         if isinstance(port, InputPort):
-            self.__inputPortsHolder.addPort(port, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+            self.__inputPortsHolder.addPort(port, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter, x, y)
         elif isinstance(port, OutputPort):
-            self.__outputPortsHolder.addPort(port, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+            self.__outputPortsHolder.addPort(port, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter, x, y)
         else:
-            self.__ioPortsHolder.addPort(port, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+            self.__ioPortsHolder.addPort(port, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter, x, y)
+        port.__x = x
+        port.__y = y
         self.__ports.append(port)
         self.adjustSize()
         return port
@@ -258,6 +316,7 @@ class Node(QtWidgets.QGraphicsWidget):
 
     def getPort(self, name):
         for port in self.__ports:
+            print("getPort : name : port ", name, port.getName())
             if port.getName() == name:
                 return port
         return None

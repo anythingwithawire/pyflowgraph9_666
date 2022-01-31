@@ -36,6 +36,6 @@ setup(name='pyflowgraph',
       ],
       keywords='data flow graph',
       packages=find_packages(exclude=['tests']),
-      install_requires=['PySide>=1.2.2,<1.2.4','qtpy','six','future'],
+      install_requires=['PySide2>=1.2.2','qtpy','six','future'],
       zip_safe=False)
 

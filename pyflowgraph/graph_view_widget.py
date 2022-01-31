@@ -46,7 +46,7 @@ class GraphViewWidget(QtWidgets.QWidget):
         return self.graphView
 
 
-
+'''
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
 
@@ -62,6 +62,7 @@ if __name__ == "__main__":
     node1.addPort(OutputPort(node1, graph, 'OutPort', QtGui.QColor(32, 255, 32, 255), 'MyDataY'))
     node1.addPort(IOPort(node1, graph, 'IOPort1', QtGui.QColor(32, 255, 32, 255), 'MyDataY'))
     node1.addPort(IOPort(node1, graph, 'IOPort2', QtGui.QColor(32, 255, 32, 255), 'MyDataY'))
+    node1.adjustSize()
     node1.setGraphPos(QtCore.QPointF( -100, 0 ))
 
     graph.addNode(node1)
@@ -73,10 +74,11 @@ if __name__ == "__main__":
     node2.addPort(IOPort(node2, graph, 'IOPort1', QtGui.QColor(32, 255, 32, 255), 'MyDataY'))
     node2.addPort(IOPort(node2, graph, 'IOPort2', QtGui.QColor(32, 255, 32, 255), 'MyDataY'))
     node2.setGraphPos(QtCore.QPointF( 100, 0 ))
-
+    node2.adjustSize()
     graph.addNode(node2)
 
     widget.setGraphView(graph)
     widget.show()
 
     sys.exit(app.exec_())
+'''
