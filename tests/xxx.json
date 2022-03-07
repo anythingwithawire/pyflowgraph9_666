@@ -1,0 +1,600 @@
+{
+      "nodes": [
+            {
+                  "width": "200.0",
+                  "height": "200.0",
+                  "x": -659.0,
+                  "y": -23.0,
+                  "name": "Short1",
+                  "colorR": "0.603922",
+                  "colorG": " 0.803922",
+                  "colorB": " 0.196078",
+                  "colorT": " 1.00000",
+                  "ports": [
+                        {
+                              "x": "0.0",
+                              "y": "20.0",
+                              "connectionPointType": "In",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "InPort1",
+                              "connections": []
+                        },
+                        {
+                              "x": "0.0",
+                              "y": "40.0",
+                              "connectionPointType": "In",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "InPort2",
+                              "connections": []
+                        },
+                        {
+                              "x": "0.0",
+                              "y": "60.0",
+                              "connectionPointType": "In",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "InPort3",
+                              "connections": []
+                        },
+                        {
+                              "x": "0.0",
+                              "y": "80.0",
+                              "connectionPointType": "In",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "InPort4",
+                              "connections": []
+                        },
+                        {
+                              "x": "85.0",
+                              "y": "20.0",
+                              "connectionPointType": "Out",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "OutPort1",
+                              "connections": []
+                        },
+                        {
+                              "x": "85.0",
+                              "y": "40.0",
+                              "connectionPointType": "Out",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "OutPort2",
+                              "connections": []
+                        },
+                        {
+                              "x": "85.0",
+                              "y": "60.0",
+                              "connectionPointType": "Out",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "OutPort3",
+                              "connections": []
+                        },
+                        {
+                              "x": "85.0",
+                              "y": "80.0",
+                              "connectionPointType": "Out",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "OutPort4",
+                              "connections": []
+                        }
+                  ]
+            },
+            {
+                  "width": "200.0",
+                  "height": "200.0",
+                  "x": 847.5643891345243,
+                  "y": -856.6712370826601,
+                  "name": "Short2",
+                  "colorR": "0.603922",
+                  "colorG": " 0.803922",
+                  "colorB": " 0.196078",
+                  "colorT": " 1.00000",
+                  "ports": [
+                        {
+                              "x": "0.0",
+                              "y": "20.0",
+                              "connectionPointType": "In",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "InPort1",
+                              "connections": [
+                                    {
+                                          "nodeFrom": "Short2_01",
+                                          "nodeTo": "Short2",
+                                          "termFrom": "OutPort1",
+                                          "termTo": "InPort1",
+                                          "srcPortCircle": "<pyflowgraph.port.OutputPort(0x2874eb0, parent=0x2902310, pos=85,20, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f0898052bc0>",
+                                          "dstPortCircle": "<pyflowgraph.port.InputPort(0x1ffa9d0, parent=0x21e11e0, pos=0,20, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f089804c9c0>",
+                                          "node": []
+                                    }
+                              ]
+                        },
+                        {
+                              "x": "0.0",
+                              "y": "40.0",
+                              "connectionPointType": "In",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "InPort2",
+                              "connections": [
+                                    {
+                                          "nodeFrom": "Short2_01",
+                                          "nodeTo": "Short2",
+                                          "termFrom": "OutPort2",
+                                          "termTo": "InPort2",
+                                          "srcPortCircle": "<pyflowgraph.port.OutputPort(0x272edd0, parent=0x2902310, pos=85,40, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f08980535c0>",
+                                          "dstPortCircle": "<pyflowgraph.port.InputPort(0x2929e50, parent=0x21e11e0, pos=0,40, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f089804ca80>",
+                                          "node": []
+                                    }
+                              ]
+                        },
+                        {
+                              "x": "0.0",
+                              "y": "60.0",
+                              "connectionPointType": "In",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "InPort3",
+                              "connections": [
+                                    {
+                                          "nodeFrom": "Short2_01",
+                                          "nodeTo": "Short2",
+                                          "termFrom": "OutPort3",
+                                          "termTo": "InPort3",
+                                          "srcPortCircle": "<pyflowgraph.port.OutputPort(0x27b4570, parent=0x2902310, pos=85,60, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f08980537c0>",
+                                          "dstPortCircle": "<pyflowgraph.port.InputPort(0x271ede0, parent=0x21e11e0, pos=0,60, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f089804b040>",
+                                          "node": []
+                                    }
+                              ]
+                        },
+                        {
+                              "x": "0.0",
+                              "y": "80.0",
+                              "connectionPointType": "In",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "InPort4",
+                              "connections": [
+                                    {
+                                          "nodeFrom": "Short2_01",
+                                          "nodeTo": "Short2",
+                                          "termFrom": "OutPort4",
+                                          "termTo": "InPort4",
+                                          "srcPortCircle": "<pyflowgraph.port.OutputPort(0x2862dd0, parent=0x2902310, pos=85,80, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f0898053d40>",
+                                          "dstPortCircle": "<pyflowgraph.port.InputPort(0x277d830, parent=0x21e11e0, pos=0,80, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f089804b540>",
+                                          "node": []
+                                    }
+                              ]
+                        },
+                        {
+                              "x": "85.0",
+                              "y": "20.0",
+                              "connectionPointType": "Out",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "OutPort1",
+                              "connections": []
+                        },
+                        {
+                              "x": "85.0",
+                              "y": "40.0",
+                              "connectionPointType": "Out",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "OutPort2",
+                              "connections": []
+                        },
+                        {
+                              "x": "85.0",
+                              "y": "60.0",
+                              "connectionPointType": "Out",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "OutPort3",
+                              "connections": []
+                        },
+                        {
+                              "x": "85.0",
+                              "y": "80.0",
+                              "connectionPointType": "Out",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "OutPort4",
+                              "connections": []
+                        }
+                  ]
+            },
+            {
+                  "width": "200.0",
+                  "height": "200.0",
+                  "x": 246.30958508049508,
+                  "y": -751.3141597608517,
+                  "name": "Short2_01",
+                  "colorR": "0.603922",
+                  "colorG": " 0.803922",
+                  "colorB": " 0.196078",
+                  "colorT": " 1.00000",
+                  "ports": [
+                        {
+                              "x": "0.0",
+                              "y": "20.0",
+                              "connectionPointType": "In",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "InPort1",
+                              "connections": [
+                                    {
+                                          "nodeFrom": "Short1_01",
+                                          "nodeTo": "Short2_01",
+                                          "termFrom": "OutPort2",
+                                          "termTo": "InPort1",
+                                          "srcPortCircle": "<pyflowgraph.port.OutputPort(0x2809bf0, parent=0x2754bf0, pos=85,40, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f08980575c0>",
+                                          "dstPortCircle": "<pyflowgraph.port.InputPort(0x275d9d0, parent=0x2902310, pos=0,20, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f0898050ac0>",
+                                          "node": []
+                                    }
+                              ]
+                        },
+                        {
+                              "x": "0.0",
+                              "y": "40.0",
+                              "connectionPointType": "In",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "InPort2",
+                              "connections": [
+                                    {
+                                          "nodeFrom": "Short1_01",
+                                          "nodeTo": "Short2_01",
+                                          "termFrom": "OutPort1",
+                                          "termTo": "InPort2",
+                                          "srcPortCircle": "<pyflowgraph.port.OutputPort(0x271dcf0, parent=0x2754bf0, pos=85,20, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f0898056bc0>",
+                                          "dstPortCircle": "<pyflowgraph.port.InputPort(0x2744a80, parent=0x2902310, pos=0,40, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f0898050b80>",
+                                          "node": []
+                                    }
+                              ]
+                        },
+                        {
+                              "x": "0.0",
+                              "y": "60.0",
+                              "connectionPointType": "In",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "InPort3",
+                              "connections": [
+                                    {
+                                          "nodeFrom": "Short1_01",
+                                          "nodeTo": "Short2_01",
+                                          "termFrom": "OutPort4",
+                                          "termTo": "InPort3",
+                                          "srcPortCircle": "<pyflowgraph.port.OutputPort(0x273fc00, parent=0x2754bf0, pos=85,80, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f0898057d40>",
+                                          "dstPortCircle": "<pyflowgraph.port.InputPort(0x2786ac0, parent=0x2902310, pos=0,60, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f08980520c0>",
+                                          "node": []
+                                    }
+                              ]
+                        },
+                        {
+                              "x": "0.0",
+                              "y": "80.0",
+                              "connectionPointType": "In",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "InPort4",
+                              "connections": [
+                                    {
+                                          "nodeFrom": "Short1_01",
+                                          "nodeTo": "Short2_01",
+                                          "termFrom": "OutPort3",
+                                          "termTo": "InPort4",
+                                          "srcPortCircle": "<pyflowgraph.port.OutputPort(0x1ff6ba0, parent=0x2754bf0, pos=85,60, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f08980577c0>",
+                                          "dstPortCircle": "<pyflowgraph.port.InputPort(0x287fe00, parent=0x2902310, pos=0,80, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f0898052640>",
+                                          "node": []
+                                    }
+                              ]
+                        },
+                        {
+                              "x": "85.0",
+                              "y": "20.0",
+                              "connectionPointType": "Out",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "OutPort1",
+                              "connections": [
+                                    {
+                                          "nodeFrom": "Short2_01",
+                                          "nodeTo": "Short2",
+                                          "termFrom": "OutPort1",
+                                          "termTo": "InPort1",
+                                          "srcPortCircle": "<pyflowgraph.port.OutputPort(0x2874eb0, parent=0x2902310, pos=85,20, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f0898052bc0>",
+                                          "dstPortCircle": "<pyflowgraph.port.InputPort(0x1ffa9d0, parent=0x21e11e0, pos=0,20, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f089804c9c0>",
+                                          "node": []
+                                    }
+                              ]
+                        },
+                        {
+                              "x": "85.0",
+                              "y": "40.0",
+                              "connectionPointType": "Out",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "OutPort2",
+                              "connections": [
+                                    {
+                                          "nodeFrom": "Short2_01",
+                                          "nodeTo": "Short2",
+                                          "termFrom": "OutPort2",
+                                          "termTo": "InPort2",
+                                          "srcPortCircle": "<pyflowgraph.port.OutputPort(0x272edd0, parent=0x2902310, pos=85,40, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f08980535c0>",
+                                          "dstPortCircle": "<pyflowgraph.port.InputPort(0x2929e50, parent=0x21e11e0, pos=0,40, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f089804ca80>",
+                                          "node": []
+                                    }
+                              ]
+                        },
+                        {
+                              "x": "85.0",
+                              "y": "60.0",
+                              "connectionPointType": "Out",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "OutPort3",
+                              "connections": [
+                                    {
+                                          "nodeFrom": "Short2_01",
+                                          "nodeTo": "Short2",
+                                          "termFrom": "OutPort3",
+                                          "termTo": "InPort3",
+                                          "srcPortCircle": "<pyflowgraph.port.OutputPort(0x27b4570, parent=0x2902310, pos=85,60, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f08980537c0>",
+                                          "dstPortCircle": "<pyflowgraph.port.InputPort(0x271ede0, parent=0x21e11e0, pos=0,60, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f089804b040>",
+                                          "node": []
+                                    }
+                              ]
+                        },
+                        {
+                              "x": "85.0",
+                              "y": "80.0",
+                              "connectionPointType": "Out",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "OutPort4",
+                              "connections": [
+                                    {
+                                          "nodeFrom": "Short2_01",
+                                          "nodeTo": "Short2",
+                                          "termFrom": "OutPort4",
+                                          "termTo": "InPort4",
+                                          "srcPortCircle": "<pyflowgraph.port.OutputPort(0x2862dd0, parent=0x2902310, pos=85,80, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f0898053d40>",
+                                          "dstPortCircle": "<pyflowgraph.port.InputPort(0x277d830, parent=0x21e11e0, pos=0,80, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f089804b540>",
+                                          "node": []
+                                    }
+                              ]
+                        }
+                  ]
+            },
+            {
+                  "width": "200.0",
+                  "height": "200.0",
+                  "x": -613.0,
+                  "y": -396.0,
+                  "name": "Short1_01",
+                  "colorR": "0.603922",
+                  "colorG": " 0.803922",
+                  "colorB": " 0.196078",
+                  "colorT": " 1.00000",
+                  "ports": [
+                        {
+                              "x": "0.0",
+                              "y": "20.0",
+                              "connectionPointType": "In",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "InPort1",
+                              "connections": []
+                        },
+                        {
+                              "x": "0.0",
+                              "y": "40.0",
+                              "connectionPointType": "In",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "InPort2",
+                              "connections": []
+                        },
+                        {
+                              "x": "0.0",
+                              "y": "60.0",
+                              "connectionPointType": "In",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "InPort3",
+                              "connections": []
+                        },
+                        {
+                              "x": "0.0",
+                              "y": "80.0",
+                              "connectionPointType": "In",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "InPort4",
+                              "connections": []
+                        },
+                        {
+                              "x": "85.0",
+                              "y": "20.0",
+                              "connectionPointType": "Out",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "OutPort1",
+                              "connections": [
+                                    {
+                                          "nodeFrom": "Short1_01",
+                                          "nodeTo": "Short2_01",
+                                          "termFrom": "OutPort1",
+                                          "termTo": "InPort2",
+                                          "srcPortCircle": "<pyflowgraph.port.OutputPort(0x271dcf0, parent=0x2754bf0, pos=85,20, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f0898056bc0>",
+                                          "dstPortCircle": "<pyflowgraph.port.InputPort(0x2744a80, parent=0x2902310, pos=0,40, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f0898050b80>",
+                                          "node": []
+                                    }
+                              ]
+                        },
+                        {
+                              "x": "85.0",
+                              "y": "40.0",
+                              "connectionPointType": "Out",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "OutPort2",
+                              "connections": [
+                                    {
+                                          "nodeFrom": "Short1_01",
+                                          "nodeTo": "Short2_01",
+                                          "termFrom": "OutPort2",
+                                          "termTo": "InPort1",
+                                          "srcPortCircle": "<pyflowgraph.port.OutputPort(0x2809bf0, parent=0x2754bf0, pos=85,40, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f08980575c0>",
+                                          "dstPortCircle": "<pyflowgraph.port.InputPort(0x275d9d0, parent=0x2902310, pos=0,20, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f0898050ac0>",
+                                          "node": []
+                                    }
+                              ]
+                        },
+                        {
+                              "x": "85.0",
+                              "y": "60.0",
+                              "connectionPointType": "Out",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "OutPort3",
+                              "connections": [
+                                    {
+                                          "nodeFrom": "Short1_01",
+                                          "nodeTo": "Short2_01",
+                                          "termFrom": "OutPort3",
+                                          "termTo": "InPort4",
+                                          "srcPortCircle": "<pyflowgraph.port.OutputPort(0x1ff6ba0, parent=0x2754bf0, pos=85,60, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f08980577c0>",
+                                          "dstPortCircle": "<pyflowgraph.port.InputPort(0x287fe00, parent=0x2902310, pos=0,80, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f0898052640>",
+                                          "node": []
+                                    }
+                              ]
+                        },
+                        {
+                              "x": "85.0",
+                              "y": "80.0",
+                              "connectionPointType": "Out",
+                              "dataType": "Terminals",
+                              "colorR": "0.501961",
+                              "colorG": " 0.666667",
+                              "colorB": " 0.666667",
+                              "colorT": " 1.00000",
+                              "name": "OutPort4",
+                              "connections": [
+                                    {
+                                          "nodeFrom": "Short1_01",
+                                          "nodeTo": "Short2_01",
+                                          "termFrom": "OutPort4",
+                                          "termTo": "InPort3",
+                                          "srcPortCircle": "<pyflowgraph.port.OutputPort(0x273fc00, parent=0x2754bf0, pos=85,80, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f0898057d40>",
+                                          "dstPortCircle": "<pyflowgraph.port.InputPort(0x2786ac0, parent=0x2902310, pos=0,60, flags=(ItemUsesExtendedStyleOption|ItemSendsGeometryChanges)) at 0x7f08980520c0>",
+                                          "node": []
+                                    }
+                              ]
+                        }
+                  ]
+            }
+      ]
+}

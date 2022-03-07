@@ -4,13 +4,22 @@
 #
 
 import copy
+import json
+import re
+
+import dicttoxml as dicttoxml
+from PySide2.QtCore import QRectF, QPoint, QPointF
+from PySide2.QtWidgets import QMenu, QFileDialog
 from future.utils import iteritems
 from past.builtins import basestring
 
 from qtpy import QtGui, QtWidgets, QtCore, PYQT5
 
+import pyflowgraph
+#from .graph_view_widget import GraphViewWidget
 from .node import Node
 from .connection import Connection
+from .port import InputPort, OutputPort
 
 from .selection_rect import SelectionRect
 
@@ -74,7 +83,7 @@ class GraphView(QtWidgets.QGraphicsView):
         # in the event handlers of this class.
         size = QtCore.QSize(600, 400)
         self.resize(size)
-        self.setSceneRect(-size.width() * 0.5, -size.height() * 0.5, size.width(), size.height())
+        self.setSceneRect(QRectF(-size.width() * 0.5, -size.height() * 0.5, size.width(), size.height()))
 
         self.setAcceptDrops(True)
         self.reset()                    #set GraphicsScene in here
@@ -112,7 +121,7 @@ class GraphView(QtWidgets.QGraphicsView):
 
         Returns:
             Boolean: Whether snap to grid is active or not.
-
+QMouseEvent
         """
 
         return self._snapToGrid
@@ -159,6 +168,8 @@ class GraphView(QtWidgets.QGraphicsView):
             return self.__nodes[name]
         return None
 
+    def getNodes(self):
+        return self.__nodes
 
     def _onNodeNameChanged(self, origName, newName ):
         if newName in self.__nodes and self.__nodes[origName] != self.__nodes[newName]:
@@ -343,6 +354,7 @@ class GraphView(QtWidgets.QGraphicsView):
 
 
     def emitEndConnectionManipulationSignal(self):
+        self.printConnections()
         self.endConnectionManipulation.emit()
 
 
@@ -355,7 +367,6 @@ class GraphView(QtWidgets.QGraphicsView):
         return connection
 
     def removeConnection(self, connection, emitSignal=True):
-
         connection.disconnect()
         if connection in self.__connections:
             self.__connections.remove(connection)
@@ -363,9 +374,20 @@ class GraphView(QtWidgets.QGraphicsView):
         if emitSignal:
             self.connectionRemoved.emit(connection)
 
+    def printConnections(self):
+        print("===Connections===")
+        for c in self.__connections:
+            nodeFrom = c._Connection__srcPortCircle._PortCircle__port._node.getName()
+            nodeTo = c._Connection__dstPortCircle._PortCircle__port._node.getName()
+            termFrom = c._Connection__srcPortCircle._PortCircle__port._name
+            termTo = c._Connection__dstPortCircle._PortCircle__port._name
+            print(nodeFrom, termFrom, nodeTo, termTo)
 
-    def connectPorts(self, srcNode, outputName, tgtNode, inputName):
+            #print(c, c._Connection__srcPortCircle._connectionPointType, c._Connection__dstPortCircle._connectionPointType, c._Connection__srcPortCircle._PortCircle__connections, c._Connection__dstPortCircle._PortCircle__connections )
+        print("=================")
 
+    def connectPorts(self, srcNode, outputName, tgtNode, inputName) -> object:
+        connection = None
         if isinstance(srcNode, Node):
             sourceNode = srcNode
         elif isinstance(srcNode, basestring):
@@ -394,13 +416,288 @@ class GraphView(QtWidgets.QGraphicsView):
         if not targetPort:
             raise Exception("Node '" + targetNode.getName() + "' does not have input:" + inputName)
 
-        connection = Connection(self, sourcePort, targetPort)
-        self.addConnection(connection, emitSignal=False)
+        srcPC = None
+        if sourcePort._inCircle:
+            srcPC = sourcePort._inCircle
+        if sourcePort._outCircle:
+            srcPC = sourcePort._outCircle
+
+        dstPC = None
+        if targetPort._inCircle:
+            dstPC = targetPort._inCircle
+        if targetPort._outCircle:
+            dstPC = targetPort._outCircle
+
+        if srcPC and dstPC:
+            connection = Connection(self, srcPC, dstPC)
+            self.addConnection(connection, emitSignal=False)
 
         return connection
+    #########################
+    ## Context Menu
+    def contextMenuEvent2(self, event):
+        contextMenu2 = QMenu(self)
+        copyAct = contextMenu2.addAction("Copy")
+        pasteAct = contextMenu2.addAction("Paste")
+        saveAct = contextMenu2.addAction("Save All")
+        loadAct = contextMenu2.addAction("Load")
+        newAct = contextMenu2.addAction("New")
+        addNode = contextMenu2.addAction("Blank Node")
+        #loadAct = contextMenu.addAction("Load")
+        #nodeAct = contextMenu.addAction("New Node")
+        p1 = event.screenPos()
+        ps = QPoint(p1.x(), p1.y())
+        action = contextMenu2.exec_(ps)
+        if action == copyAct:
+            nodesS = self.getSelectedNodes()
+            nodes = {}
+            for n in nodesS:
+                k = n.getName()
+                nodes[k] = n
+            self.saveNodesCopy(nodes, 'copyBuf.json')
+
+        if action == pasteAct:
+            pastePos = QPointF(event.pos())
+            self.loadNodes('copyBuf.json', pastePos)
+
+        if action == addNode:
+            node = Node(self, "blank", xSize=50, ySize=100)
+            node.setPos(QPointF(event.x(), event.y()))
+            self.addNode(node)
+
+        if action == newAct:
+            self.reset()
+
+        if action == saveAct:
+            nodesD = self.getNodes()
+            file, check = QFileDialog.getSaveFileName(None, "QFileDialog.getSaveFileName()", "", "Json Files (*.json)")
+            if check:
+                self.saveNodes(nodesD, file)
+
+        if action == loadAct:
+            file, check = QFileDialog.getOpenFileName(None, "QFileDialog.getOpenFileName()", "", "Json Files (*.json)")
+            if check:
+                self.loadNodes(file, QPointF(0, 0))
 
     ################################################
     ## Events
+
+    def loadNodes(self, fileName, offsetPos):
+        from pyflowgraph.graph_view_widget import GraphViewWidget
+        graph = GraphViewWidget.getGraphView(GraphViewWidget.clsSelf[0])
+        in_file = open(fileName, 'r')
+        graphD = json.load(in_file)
+        print(graphD)
+        allConnections = []
+        allConnections.clear()
+        # self.prepareConnectionGeometryChange()
+
+        names = []
+        for node in graphD['nodes']:        #rename any of the nodes that need it here
+            nameUpdate = {}
+            node['oldName'] = None          #and keep a list so we can update connections
+            name = str(node['name'])
+            print("name", name)
+            newName = name[:]               #make sure to actually geta copy of the var
+            seqNum = 1
+            while self.getNode(newName):                  #name already exists, keep trying until newName is new
+                if name[-1:].isdigit() and name[-2:-1].isdigit() and name[-3:-2] == '_':
+                    blkNum = int(name[-2:]) + 1
+                    newName = name[:-3] + '_' + str(blkNum).zfill(2)
+                else:
+                    newName = name + '_' + str(seqNum).zfill(2)
+                    seqNum = seqNum+1
+                print("newName", newName)
+                #node['oldName'] = name
+                node['name'] = str(newName)
+            nameUpdate['oldName'] = name
+            nameUpdate['name'] = newName
+            names.append(nameUpdate)
+
+        for node in graphD['nodes']:
+            # node.prepareConnectionGeometryChange()
+
+            node1 = Node(graph, node['name'], xSize=float(node['width']), ySize=float(node['height']))
+            for p in node['ports']:
+                if p['connectionPointType'] == 'In':
+                    node1.addPort(InputPort(node1, graph, p['name'],
+                                            QtGui.QColor.fromRgbF(float(p['colorR']), float(p['colorB']),
+                                                                  float(p['colorG']), float(p['colorT'])),
+                                            dataType=p['dataType']), x=float(p['x']), y=float(p['y']))
+                if p['connectionPointType'] == 'Out':
+                    node1.addPort(OutputPort(node1, graph, p['name'],
+                                             QtGui.QColor.fromRgbF(float(p['colorR']), float(p['colorB']),
+                                                                   float(p['colorG']), float(p['colorT'])),
+                                             dataType=p['dataType']),
+                                  x=float(p['x']), y=float(p['y']))
+                d = p['connections']
+                if d:
+                    allConnections.append(d)
+            graph.addNode(node1)
+            node1.setPos(float(node['x'] + offsetPos.x()), float(node['y'] + offsetPos.y()))
+        print("names==>", names)
+
+        print("allConnections==>", allConnections)
+        print("\n\n")
+        for portConnections in allConnections:
+            for checkName in names:  # replace old block names with new
+                if portConnections[0]['nodeFrom'] in checkName['oldName']:
+                    portConnections[0]['nodeFrom'] = checkName['name']
+                if portConnections[0]['nodeTo'] in checkName['oldName']:
+                    portConnections[0]['nodeTo'] = checkName['name']
+
+        print("allConnections==>", allConnections)
+
+        for cc in allConnections:
+            c = cc[0]
+            self.connectPorts(c['nodeFrom'], c['termFrom'], c['nodeTo'], c['termTo'])
+            # connection = Connection(graph, graph.getNode(c['nodeFrom']).getPort(c['termFrom']), graph.getNode(c['nodeTo']).getPort(c['termTo']))
+            # graph.__connections.add(connection)
+            # self.connectPorts(self.getNode(c['nodeFrom']), c['termFrom'], self.getNode(c['nodeTo']), c['termTo'])
+
+    def saveNodes(self, nodes, fileName):
+        graphD = {}
+        graphD = {'nodes': []}
+        for n in nodes.values():
+            nodeD = {}
+            c1 = str(re.findall(r'\(.*?\)', str(n.getColor())))
+            c2 = c1[3:-4]
+            c3 = c2.split(',')  # TODO dodgy
+            nodeD = {
+                'width': str(n.getWidth()),
+                'height': str(n.getHeight()),
+                'x': n.pos().x(),
+                'y': n.pos().y(),
+                'name': str(n.getName()),
+                'colorR': c3[0],  # extract the color from inside the brackets
+                'colorG': c3[1],  # extract the color from inside the brackets
+                'colorB': c3[2],  # extract the color from inside the brackets
+                'colorT': c3[3],  # extract the color from inside the brackets
+                'ports': []
+            }
+            for p in n.getPorts():
+                portD = {}
+                c1 = str(re.findall(r'\(.*?\)', str(p.getColor())))
+                c2 = c1[3:-4]
+                c3 = c2.split(',')  # TODO another super dodgy
+                portD = {
+                    'x': str(p.pos().x()),
+                    'y': str(p.pos().y()),
+                    'connectionPointType': str(p.connectionPointType()),
+                    'dataType': str(p.getDataType()),
+                    'colorR': c3[0],  # extract the color from inside the brackets
+                    'colorG': c3[1],  # extract the color from inside the brackets
+                    'colorB': c3[2],  # extract the color from inside the brackets
+                    'colorT': c3[3],  # extract the color from inside the brackets
+                    'name': str(p.getName()),
+                    'connections': []
+                }
+                connectionsD = {}
+                if p._inCircle:
+                    cc = p._inCircle.getConnections()
+                if p._outCircle:
+                    cc = p._outCircle.getConnections()
+                if cc:
+                    for c in cc:
+                        nodeFrom = c._Connection__srcPortCircle._PortCircle__port._node.getName()
+                        nodeTo = c._Connection__dstPortCircle._PortCircle__port._node.getName()
+                        termFrom = c._Connection__srcPortCircle.getPort().getName(),
+                        termTo = c._Connection__dstPortCircle.getPort().getName()
+                        connectionsD = {
+                            'nodeFrom': str(nodeFrom),
+                            'nodeTo': str(nodeTo),
+                            'termFrom': str(termFrom[0]),
+                            'termTo': str(termTo),  # TODO TODO mega dodgy
+                            'srcPortCircle': str(c._Connection__srcPortCircle.getPort()),
+                            'dstPortCircle': str(c._Connection__dstPortCircle.getPort()),
+                            'node': []
+                        }
+                    portD['connections'].append(connectionsD)
+                nodeD['ports'].append(portD)
+            graphD['nodes'].append(nodeD)
+
+        #fileName = 'graph.json'
+        out_file = open(fileName, 'w')
+        json.dump(graphD, out_file, indent=6)
+
+        #fileName = 'graph.xml'
+        #xml = dicttoxml.dicttoxml(graphD)
+        #with open(fileName, 'w') as file_object:
+        #    file_object.write(str(xml))
+
+    def saveNodesCopy(self, nodes, fileName):
+        graphD = {}
+        graphD = {'nodes': []}
+        copyNodes = nodes.values()
+        for n in copyNodes:
+            nodeD = {}
+            c1 = str(re.findall(r'\(.*?\)', str(n.getColor())))
+            c2 = c1[3:-4]
+            c3 = c2.split(',')  # TODO dodgy
+            nodeD = {
+                'width': str(n.getWidth()),
+                'height': str(n.getHeight()),
+                'x': n.pos().x(),
+                'y': n.pos().y(),
+                'name': str(n.getName()),
+                'colorR': c3[0],  # extract the color from inside the brackets
+                'colorG': c3[1],  # extract the color from inside the brackets
+                'colorB': c3[2],  # extract the color from inside the brackets
+                'colorT': c3[3],  # extract the color from inside the brackets
+                'ports': []
+            }
+            for p in n.getPorts():
+                portD = {}
+                c1 = str(re.findall(r'\(.*?\)', str(p.getColor())))
+                c2 = c1[3:-4]
+                c3 = c2.split(',')  # TODO another super dodgy
+                portD = {
+                    'x': str(p.pos().x()),
+                    'y': str(p.pos().y()),
+                    'connectionPointType': str(p.connectionPointType()),
+                    'dataType': str(p.getDataType()),
+                    'colorR': c3[0],  # extract the color from inside the brackets
+                    'colorG': c3[1],  # extract the color from inside the brackets
+                    'colorB': c3[2],  # extract the color from inside the brackets
+                    'colorT': c3[3],  # extract the color from inside the brackets
+                    'name': str(p.getName()),
+                    'connections': []
+                }
+                connectionsD = {}
+                connections = None                              #TODO a bunch of getters to avoid accessing protected
+                if p._inCircle:                                 #this assumes a port can only be in or out type
+                    connections = p._inCircle.getConnections()
+                if p._outCircle:
+                    connections = p._outCircle.getConnections()
+                for c in connections:
+                    nodeFromNode = c._Connection__srcPortCircle._PortCircle__port._node
+                    nodeToNode = c._Connection__dstPortCircle._PortCircle__port._node
+                    if nodeFromNode in copyNodes and nodeToNode in copyNodes:
+                        nodeFrom = c._Connection__srcPortCircle._PortCircle__port._node.getName()
+                        nodeTo = c._Connection__dstPortCircle._PortCircle__port._node.getName()
+                        termFrom = c._Connection__srcPortCircle.getPort().getName(),
+                        termTo = c._Connection__dstPortCircle.getPort().getName()
+                        connectionsD = {
+                            'nodeFrom': str(nodeFrom),
+                            'nodeTo': str(nodeTo),
+                            'termFrom': str(termFrom[0]),
+                            'termTo': str(termTo),  # TODO TODO mega dodgy
+                            'srcPortCircle': str(c._Connection__srcPortCircle.getPort()),
+                            'dstPortCircle': str(c._Connection__dstPortCircle.getPort()),
+                            'node': []
+                        }
+                        portD['connections'].append(connectionsD)
+                nodeD['ports'].append(portD)
+            graphD['nodes'].append(nodeD)
+
+        #fileName = 'graph.json'
+        out_file = open(fileName, 'w')
+        json.dump(graphD, out_file, indent=6)
+
+        #fileName = 'graph.xml'
+        #xml = dicttoxml.dicttoxml(graphD)
+        #with open(fileName, 'w') as file_object:
+        #    file_object.write(str(xml))
 
     def mousePressEvent(self, event):
 
@@ -411,23 +708,23 @@ class GraphView(QtWidgets.QGraphicsView):
             self.clearSelection(emitSignal=False)
             self._selectionRect = SelectionRect(graph=self, mouseDownPos=self.mapToScene(event.pos()))
 
-        elif event.button() == QtCore.Qt.MidButton or event.button() == QtCore.Qt.MiddleButton:
+        if event.button() == QtCore.Qt.MidButton or event.button() == QtCore.Qt.MiddleButton and self.itemAt(event.pos()) is None:
             self.setCursor(QtCore.Qt.OpenHandCursor)
             self._manipulationMode = MANIP_MODE_PAN
             self._lastPanPoint = self.mapToScene(event.pos())
 
-        elif event.button() == QtCore.Qt.RightButton:
+        if event.button() == QtCore.Qt.RightButton and self.itemAt(event.pos()) is None:
             self.setCursor(QtCore.Qt.SizeHorCursor)
-            self._manipulationMode = MANIP_MODE_ZOOM
+            #self._manipulationMode = MANIP_MODE_ZOOM
             self._lastMousePos = event.pos()
             self._lastTransform = QtGui.QTransform(self.transform())
             self._lastSceneRect = self.sceneRect()
             self._lastSceneCenter = self._lastSceneRect.center()
             self._lastScenePos = self.mapToScene(event.pos())
             self._lastOffsetFromSceneCenter = self._lastScenePos - self._lastSceneCenter
+            self.contextMenuEvent2(event)
 
-        else:
-            super(GraphView, self).mousePressEvent(event)
+        super(GraphView, self).mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
         modifiers = QtWidgets.QApplication.keyboardModifiers()

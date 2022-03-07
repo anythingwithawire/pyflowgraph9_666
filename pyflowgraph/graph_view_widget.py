@@ -11,6 +11,7 @@ from .graph_view import GraphView
 class GraphViewWidget(QtWidgets.QWidget):
 
     rigNameChanged = QtCore.Signal()
+    clsSelf = []
 
     def __init__(self, parent=None):
 
@@ -19,7 +20,7 @@ class GraphViewWidget(QtWidgets.QWidget):
         self.openedFile = None
         self.setObjectName('graphViewWidget')
         self.setAttribute(QtCore.Qt.WA_WindowPropagation, True)
-
+        self.clsSelf.append(self)                               #TODO - this is super dodgy
 
     def setGraphView(self, graphView):
 

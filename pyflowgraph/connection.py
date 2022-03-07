@@ -1,6 +1,3 @@
-
-#
-# Copyright 2015-2017 Eric Thivierge
 #
 from qtpy.QtCore import QPointF
 from qtpy import QtGui, QtWidgets, QtCore
@@ -33,7 +30,6 @@ class Connection(QtWidgets.QGraphicsPathItem):
 
         self.__hoverPen = QtGui.QPen(self.__connectionHoverColor, 1.5, style=penStyle)
         self.__hoverPen.setDashPattern([1, 2, 2, 1])
-
         self.setPen(self.__defaultPen)
         self.setZValue(-1)
 
@@ -95,6 +91,7 @@ class Connection(QtWidgets.QGraphicsPathItem):
         dstPort = self.__dstPortCircle.getPort()
 
         self.__path = QtGui.QPainterPath()
+
         self.setPen(self.__defaultPen)
         self.__path.moveTo(srcPoint)
 
@@ -103,47 +100,47 @@ class Connection(QtWidgets.QGraphicsPathItem):
                 self.__path.lineTo((dstPoint.x()+srcPoint.x())/2, srcPoint.y())
                 self.__path.lineTo((dstPoint.x() + srcPoint.x()) / 2, dstPoint.y())
                 self.__path.lineTo(dstPoint.x(), dstPoint.y())
-            else:
-                self.__path.lineTo(dstPoint.x(), srcPoint.y())
-                self.__path.lineTo(dstPoint.x(), dstPoint.y())
-
-        else:
-            self.__path.lineTo(dstPoint.x(), srcPoint.y())
-            self.__path.lineTo(dstPoint.x(), dstPoint.y())
-
-        #self.__path.quadTo(
-        #    dstPoint - QtCore.QPointF(dist_between.x() * 0.3, 0),
-        #    dstPoint)
-
-        #self.__path.lineTo(dstPoint - QtCore.QPointF(dist_between.x() * 0.0),dstPoint)
-
 
         self.setPen(self.__whitePen)
-        textPoint1 = QPointF(srcPoint.x() + 10, srcPoint.y() - 1)
-        textPoint2 = QPointF(srcPoint.x() + 10, srcPoint.y() - 1)
+        textPoint1 = QPointF((srcPoint.x() + dstPoint.x()) / 2, (srcPoint.y()))
+        textPoint2 = QPointF((srcPoint.x() + dstPoint.x()) / 2, (dstPoint.y()))
 
         if dstPort and srcPort:
             if dstPort._connectionPointType == "Gland" and srcPort._connectionPointType == 'Out':
-                textPoint1 = QPointF(srcPoint.x()+10, srcPoint.y()-1)
+                textPoint1 = QPointF((srcPoint.x() + dstPoint.x())/2, (srcPoint.y()))
+                textPoint2 = QPointF((srcPoint.x() + dstPoint.x())/2, (dstPoint.y()))
+
         if dstPort and srcPort:
             if dstPort._connectionPointType == "Gland" and srcPort._connectionPointType == 'In':
-                textPoint1 = QPointF(srcPoint.x()-30, srcPoint.y()-1)
+                textPoint1 = QPointF((srcPoint.x() + dstPoint.x())/2, (srcPoint.y()))
+                textPoint2 = QPointF((srcPoint.x() + dstPoint.x())/2, (dstPoint.y()))
+
+        if dstPort and srcPort:
+            if dstPort._connectionPointType == "Gland" and srcPort._connectionPointType == 'Out':
+                textPoint1 = QPointF((srcPoint.x() + dstPoint.x())/2, (srcPoint.y()))
+                textPoint2 = QPointF((srcPoint.x() + dstPoint.x())/2, (dstPoint.y()))
+
+        if dstPort and srcPort:
+            if dstPort._connectionPointType == "Gland" and srcPort._connectionPointType == 'In':
+                textPoint1 = QPointF((srcPoint.x() + dstPoint.x())/2, (srcPoint.y()))
+                textPoint2 = QPointF((srcPoint.x() + dstPoint.x())/2, (dstPoint.y()))
+
+        if dstPort and srcPort:
+            if dstPort._connectionPointType == "Out" and srcPort._connectionPointType == 'In':
+                textPoint1 = QPointF((srcPoint.x() + dstPoint.x())/2, (srcPoint.y()))
+                textPoint2 = QPointF((srcPoint.x() + dstPoint.x())/2, (dstPoint.y()))
+
+            if dstPort._connectionPointType == "in" and srcPort._connectionPointType == 'Out':
+                textPoint1 = QPointF((srcPoint.x() + dstPoint.x())/2, (srcPoint.y()))
+                textPoint2 = QPointF((srcPoint.x() + dstPoint.x())/2, (dstPoint.y()))
+
+        self.__path.lineTo(textPoint1)
+        self.__path.lineTo(textPoint2)
+        self.__path.lineTo(dstPoint.x(), dstPoint.y())
+
         self.__path.addText(textPoint1,self.__smallFont, "0001")
-
-        if dstPort and srcPort:
-            if dstPort._connectionPointType == "Gland" and srcPort._connectionPointType == 'Out':
-                textPoint2 = QPointF(srcPoint.x()+40, srcPoint.y()-1)
-        if dstPort and srcPort:
-            if dstPort._connectionPointType == "Gland" and srcPort._connectionPointType == 'In':
-                textPoint2 = QPointF(srcPoint.x()-90, srcPoint.y()-1)
         self.__path.addText(textPoint2, self.__medFont, "WireMark")
-
         self.setPath(self.__path)
-
-
-        #self.painter.drawPath(self.__path)
-
-        #self.addPath(self.__text)
 
 
         super(Connection, self).paint(painter, option, widget)

@@ -117,60 +117,61 @@ class MouseGrabber(PortCircle):
         self.__connection = None
 
         if self.__mouseOverPortCircle is not None:
-            connection = Connection(self._graph, sourcePortCircle, targetPortCircle)
+            if not sourcePortCircle is targetPortCircle:
+                connection = Connection(self._graph, sourcePortCircle, targetPortCircle)
 
-            '''
-            #try:
-            if self.connectionPointType() in ['In', 'GlandIn']:
-                sourcePortCircle = self.__otherPortItem
-                targetPortCircle = self.__mouseOverPortCircle
-            elif self.connectionPointType() in ['Out', 'GlandOut']:
-                sourcePortCircle = self.__mouseOverPortCircle
-                targetPortCircle = self.__otherPortItem
-
-            connection = Connection(self._graph, sourcePortCircle, targetPortCircle)
-
-
-            ####
-            #### glanding
-            ####
-            item = sourcePortCircle.parentWidget().parentWidget().parentWidget()
-            nName = item.getName()
-            nNode = self._graph.getNode(nName)
-            nGland = nNode.getPort("GlandIn")
-            if not nGland:
-                connection.__srcGlandPort = nNode.addPort(
-                    OutputPort(nNode, self._graph, "GlandOut", QtGui.QColor(128, 170, 170, 255), 'GlandOut'), x=100,
-                    y=30)
-                connection.__srcGlandPoint = connection.mapFromScene(sourcePortCircle.centerInSceneCoords())
-                print("Src Added Gland Port")
-            else:
-                connection.__srcGlandPoint = connection.mapFromScene(sourcePortCircle.centerInSceneCoords())
-                print("Src Gland port already there")
-
-            if targetPortCircle.parentWidget():
-                item = targetPortCircle.parentWidget().parentWidget().parentWidget()
+                '''
+                #try:
+                if self.connectionPointType() in ['In', 'GlandIn']:
+                    sourcePortCircle = self.__otherPortItem
+                    targetPortCircle = self.__mouseOverPortCircle
+                elif self.connectionPointType() in ['Out', 'GlandOut']:
+                    sourcePortCircle = self.__mouseOverPortCircle
+                    targetPortCircle = self.__otherPortItem
+    
+                connection = Connection(self._graph, sourcePortCircle, targetPortCircle)
+    
+    
+                ####
+                #### glanding
+                ####
+                item = sourcePortCircle.parentWidget().parentWidget().parentWidget()
                 nName = item.getName()
                 nNode = self._graph.getNode(nName)
                 nGland = nNode.getPort("GlandIn")
                 if not nGland:
-                    connection.__dstGlandPort = nNode.addPort(
-                        OutputPort(nNode, self._graph, "GlandIn", QtGui.QColor(128, 170, 170, 255), 'GlandIn'), x=-100,
+                    connection.__srcGlandPort = nNode.addPort(
+                        OutputPort(nNode, self._graph, "GlandOut", QtGui.QColor(128, 170, 170, 255), 'GlandOut'), x=100,
                         y=30)
-                    connection.__dstGlandPoint = connection.mapFromScene(targetPortCircle.centerInSceneCoords())
-                    print("Dst Added Gland Port")
+                    connection.__srcGlandPoint = connection.mapFromScene(sourcePortCircle.centerInSceneCoords())
+                    print("Src Added Gland Port")
                 else:
-                    connection.__dstGlandPoint = connection.mapFromScene(targetPortCircle.centerInSceneCoords())
-                    print("Dst Gland port already there")
+                    connection.__srcGlandPoint = connection.mapFromScene(sourcePortCircle.centerInSceneCoords())
+                    print("Src Gland port already there")
+    
+                if targetPortCircle.parentWidget():
+                    item = targetPortCircle.parentWidget().parentWidget().parentWidget()
+                    nName = item.getName()
+                    nNode = self._graph.getNode(nName)
+                    nGland = nNode.getPort("GlandIn")
+                    if not nGland:
+                        connection.__dstGlandPort = nNode.addPort(
+                            OutputPort(nNode, self._graph, "GlandIn", QtGui.QColor(128, 170, 170, 255), 'GlandIn'), x=-100,
+                            y=30)
+                        connection.__dstGlandPoint = connection.mapFromScene(targetPortCircle.centerInSceneCoords())
+                        print("Dst Added Gland Port")
+                    else:
+                        connection.__dstGlandPoint = connection.mapFromScene(targetPortCircle.centerInSceneCoords())
+                        print("Dst Gland port already there")
+    
+                '''
+                self._graph.addConnection(connection)
+                self._graph.emitEndConnectionManipulationSignal()
 
-            '''
-            self._graph.addConnection(connection)
-            self._graph.emitEndConnectionManipulationSignal()
+                #except Exception as e:
+                #    print("Exception in MouseGrabber.mouseReleaseEvent: " + str(e))
 
-            #except Exception as e:
-            #    print("Exception in MouseGrabber.mouseReleaseEvent: " + str(e))
-
-            self.setMouseOverPortCircle(None)
+                self.setMouseOverPortCircle(None)
 
         self.destroy()
 

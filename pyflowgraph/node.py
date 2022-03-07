@@ -6,8 +6,11 @@
 import math
 import json
 
-from PySide2.QtCore import QPointF
-from qtpy import QtGui, QtWidgets, QtCore
+from PySide2.QtCore import QPointF, Qt, QPoint
+from PySide2.QtWidgets import QMenu
+from PySide2 import QtGui, QtWidgets, QtCore
+
+from . import port
 from .port import InputPort, OutputPort, GlandPort
 from .port import BasePort
 
@@ -132,11 +135,13 @@ class Node(QtWidgets.QGraphicsWidget):
     __linePen = QtGui.QPen(QtGui.QColor(25, 25, 25, 255), 1.25)
 
     def __init__(self, graph, name, xSize=80, ySize=20):
-        super(Node, self).__init__(None)
+        super(Node, self).__init__()
 
+        self.height = ySize
         self.__name = name
         self.__graph = graph
         self.__color = self.__defaultColor
+        self.xSize = xSize
 
         self.setMinimumWidth(xSize)
         self.setMinimumHeight(ySize)
@@ -169,24 +174,34 @@ class Node(QtWidgets.QGraphicsWidget):
         #self.setWindowFlags(QtCore.Qt.SubWindow)
         #self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
-        p = GlandPort(self, self.__graph, "Gland", self.__defaultColor, "Gland", -200, -20)
-        self.addPort(p, -150, 20)
-        self.nextInPort = 40
-
-
-
-        p = GlandPort(self, self.__graph, "Gland", self.__defaultColor, "Gland", 200, -20)
-        self.addPort(p,xSize + 150, 20)
-        self.nextOutPort = 40
+        self.nextInGlandPort = 40
+        self.nextOutGlandPort = 40
+        self.nextGlandNum = 1
 
         self.__selected = False
         self.__dragging = False
+        #self.setContextMenuPolicy(Qt.CustomMenu)
+
 
         #self.adjustSize()
 
     # =====
     # Name
     # =====
+
+    def addGlands(self):
+        nodeName = self.getName()
+        glandName = '.' + nodeName + '.I.' + str(self.nextGlandNum).zfill(2)
+        pi = GlandPort(self, self.__graph, glandName, self.__defaultColor, "Gland", -200, -20)
+        self.addPort(pi, -150, self.nextInGlandPort)
+        self.nextGlandNum = self.nextGlandNum+1
+        self.nextInGlandPort = self.nextInGlandPort + 20
+
+        glandName = '.' + nodeName + '.O.' + str(self.nextGlandNum).zfill(2)
+        po = GlandPort(self, self.__graph, glandName, self.__defaultColor, "Gland", 200, -20)
+        self.addPort(po, self.xSize + 150, self.nextOutGlandPort)
+        self.nextGlandNum = self.nextGlandNum + 1
+        self.nextOutGlandPort = self.nextOutGlandPort + 20
 
     def getNode(self, name):
         for n in self.__graph.__nodes:
@@ -201,11 +216,20 @@ class Node(QtWidgets.QGraphicsWidget):
         self.setMinimumHeight(height)
         self.setMaximumHeight(height)
 
+    def getHeight(self):
+        return self.height
+
     def getWidth(self):
         return self.minimumWidth()
 
     def getName(self):
         return self.__name
+
+    def getPosX(self):
+        return self.getGraphPos().x()
+
+    def getPosY(self):
+        return self.getGraphPos().y()
 
     def setName(self, name):
         if name != self.__name:
@@ -311,8 +335,8 @@ class Node(QtWidgets.QGraphicsWidget):
             self.__outputPortsHolder.addPort(port, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter, x, y)
         else:
             self.__ioPortsHolder.addPort(port, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter, x, y)
-        port.__x = x
-        port.__y = y
+        #port.__x = x
+        #port.__y = y
         self.__ports.append(port)
         self.adjustSize()
         return port
@@ -324,6 +348,10 @@ class Node(QtWidgets.QGraphicsWidget):
             if port.getName() == name:
                 return port
         return None
+
+
+    def getPorts(self):
+        return self.__ports
 
 
     def paint(self, painter, option, widget):
@@ -356,7 +384,27 @@ class Node(QtWidgets.QGraphicsWidget):
 
         painter.drawRoundedRect(rect, roundingX, roundingY, QtCore.Qt.AbsoluteSize)
 
-
+    #########################
+    ## Context Menu
+    def contextMenuEvent2(self, event):
+        contextMenu2 = QMenu(self.parentItem())
+        addGAct = contextMenu2.addAction("Add Glands")
+        listPorts = contextMenu2.addAction("List Ports")
+        addPort = contextMenu2.addAction("Add Port")
+        #loadAct = contextMenu.addAction("Load")
+        #nodeAct = contextMenu.addAction("New Node")
+        p1 = event.screenPos()
+        ps = QPoint(p1.x(), p1.y())
+        action = contextMenu2.exec_(ps)
+        if action == addGAct:
+            self.addGlands()
+        if action == listPorts:
+            ports = self.getPorts()
+            for p in ports:
+                print(p)
+        if action == addPort:
+            ip = port.InputPort(self, self.getGraph(), 'pp', QtGui.QColor(128, 170, 170, 255))
+            self.addPort(ip, 0, 0)
     #########################
     ## Events
 
@@ -382,6 +430,9 @@ class Node(QtWidgets.QGraphicsWidget):
                 self._mouseDelta = self._mouseDownPoint - self.getGraphPos()
                 self._lastDragPoint = self._mouseDownPoint
                 self._nodesMoved = False
+
+        elif event.button() == QtCore.Qt.RightButton:
+            self.contextMenuEvent2(event)
 
         else:
             super(Node, self).mousePressEvent(event)

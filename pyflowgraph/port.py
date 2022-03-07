@@ -4,6 +4,9 @@
 #
 
 import json
+
+from PySide2.QtCore import QPointF, QPoint, Qt
+from PySide2.QtWidgets import QMenu
 from qtpy import QtGui, QtWidgets, QtCore
 
 
@@ -79,6 +82,7 @@ class PortLabel(QtWidgets.QGraphicsWidget):
 
 
     def mousePressEvent(self, event):
+        print("port press")
         self.__mousDownPos = self.mapToScene(event.pos())
 
 
@@ -125,6 +129,7 @@ class PortCircle(QtWidgets.QGraphicsWidget):
 
         self.__defaultPen = QtGui.QPen(QtGui.QColor(25, 25, 25), 1.0)
         self.__hoverPen = QtGui.QPen(QtGui.QColor(255, 255, 100), 1.5)
+        self.__movePen = QtGui.QPen(QtGui.QColor(255, 0, 0), 1.5)
 
         self._ellipseItem = QtWidgets.QGraphicsRectItem(self)
         self._ellipseItem.setPen(self.__defaultPen)
@@ -141,6 +146,8 @@ class PortCircle(QtWidgets.QGraphicsWidget):
 
         self.setColor(color)
         self.setAcceptHoverEvents(True)
+        self.mousePos = QPointF(0,0)
+        self.portMove = None
 
     def getPort(self):
         return self.__port
@@ -178,7 +185,15 @@ class PortCircle(QtWidgets.QGraphicsWidget):
             self.__diameter * 1.3,
             )
 
-
+    def highlight2(self):
+        self._ellipseItem.setBrush(QtGui.QBrush(QtGui.QColor(255,0,0)))
+        # make the port bigger to highlight it can accept the connection.
+        self._ellipseItem.setRect(
+            -self.__radius * 1.3,
+            -self.__radius * 1.3,
+            self.__diameter * 1.3,
+            self.__diameter * 1.3,
+            )
     def unhighlight(self):
         self._ellipseItem.setBrush(QtGui.QBrush(self._color))
         self._ellipseItem.setRect(
@@ -274,34 +289,89 @@ class PortCircle(QtWidgets.QGraphicsWidget):
     # ======
     def hoverEnterEvent(self, event):
         self.highlight()
+        if self.portMove:
+            self.highlight2()
         super(PortCircle, self).hoverEnterEvent(event)
 
 
     def hoverLeaveEvent(self, event):
-        self.unhighlight()
+        if not self.portMove:
+            self.unhighlight()
         super(PortCircle, self).hoverLeaveEvent(event)
+
+    #########################
+    ## Context Menu
+    def contextMenuEvent2(self, event):
+        contextMenu2 = QMenu()
+        listConn = contextMenu2.addAction("List Connections")
+        movePort = contextMenu2.addAction("Move Port")
+        hidePort = contextMenu2.addAction("Hide Port")
+        # loadAct = contextMenu.addAction("Load")
+        # nodeAct = contextMenu.addAction("New Node")
+        p1 = event.screenPos()
+        ps = QPoint(p1.x(), p1.y())
+        action = contextMenu2.exec_(ps)
+        if action == listConn:
+            print("===Connections===")
+            for c in self.__connections:
+                nodeFrom = c._Connection__srcPortCircle._PortCircle__port._node.getName()
+                nodeTo = c._Connection__dstPortCircle._PortCircle__port._node.getName()
+                termFrom = c._Connection__srcPortCircle._PortCircle__port._name
+                termTo = c._Connection__dstPortCircle._PortCircle__port._name
+                if c._Connection__srcPortCircle is self or c._Connection__dstPortCircle is self:
+                    print(nodeFrom, termFrom, nodeTo, termTo)
+            print("=================")
+
+        if action == movePort:
+            #self.setSelected(True)
+            self.portMove = self
+            self.highlight2()
+
+        if action == hidePort:
+            self.setVisible(False)
 
     def mousePressEvent(self, event):
 
-        self.unhighlight()
+        if event.button() == QtCore.Qt.LeftButton:
 
-        scenePos = self.mapToScene(event.pos())
+            if self.portMove is not None:
+                pass
+                #self.setPos(QPointF(self.mousePos))
+            else:
+                self.unhighlight()
 
-        from .mouse_grabber import MouseGrabber
-        if self.isInConnectionPoint():
-            MouseGrabber(self._graph, scenePos, self, 'Out')
-        elif self.isOutConnectionPoint():
-            MouseGrabber(self._graph, scenePos, self, 'In')
-        elif self.isGlandConnectionPoint():
-            MouseGrabber(self._graph, scenePos, self, 'Gland')
+                scenePos = self.mapToScene(event.pos())
 
+                from .mouse_grabber import MouseGrabber
+                if self.isInConnectionPoint():
+                    MouseGrabber(self._graph, scenePos, self, 'Out')
+                elif self.isOutConnectionPoint():
+                    MouseGrabber(self._graph, scenePos, self, 'In')
+                elif self.isGlandConnectionPoint():
+                    MouseGrabber(self._graph, scenePos, self, 'Gland')
 
+        if event.button() == QtCore.Qt.RightButton:
+            self.contextMenuEvent2(event)
 
+    #super(PortCircle, self).mousePressEvent(event)
     # def paint(self, painter, option, widget):
     #     super(PortCircle, self).paint(painter, option, widget)
     #     painter.setPen(QtGui.QPen(QtGui.QColor(255, 255, 0)))
     #     painter.drawRect(self.windowFrameRect())
 
+    def mouseMoveEvent(self, event):
+        self.mousePos = self.mapToItem(self.parentItem(), event.pos())
+        if self.portMove is not None:
+            self.highlight2()
+            self.setPos(QPointF(self.mousePos))
+
+
+
+    def mouseReleaseEvent(self,event):
+        if self.portMove:
+            self.portMove.unhighlight()
+            self.portMove = None
+            #self.portMove.setSelected(False)
 
 class ItemHolder(QtWidgets.QGraphicsWidget):
     """docstring for ItemHolder"""
@@ -346,6 +416,8 @@ class BasePort(QtWidgets.QGraphicsWidget):
         self.setLayout(layout)
 
         self._color = color
+
+        self.setAcceptedMouseButtons(QtCore.Qt.RightButton)
 
         self._inCircle = None
         self._outCircle = None
@@ -451,8 +523,46 @@ class InputPort(BasePort):
 
         self.setInCircle(PortCircle(self, graph, -2, color, 'In'))
         self.setLabelItem(PortLabel(self, name, -10, self._labelColor, self._labelHighlightColor))
+        self.setAcceptedMouseButtons(QtCore.Qt.RightButton)
+        self._supportsOnlySingleConnections = False
 
+    def addConnection(self, connection):
+        """Adds a connection to the list.
+        Arguments:
+        connection -- connection, new connection to add.
+        Return:
+        True if successful.
+        """
 
+        if self._supportsOnlySingleConnections and len(self.__connections) != 0:
+            # gather all the connections into a list, and then remove them from the graph.
+            # This is because we can't remove connections from ports while
+            # iterating over the set.
+            connections = []
+            for c in self.__connections:
+                connections.append(c)
+            for c in connections:
+                self._graph.removeConnection(c)
+
+        PortCircle.__connections.add(connection)
+
+        return True
+
+    #########################
+    ## Context Menu
+    def contextMenuEvent2(self, event):
+        contextMenu2 = QMenu(self.parentItem())
+        portAct = contextMenu2.addAction("PortPortPort")
+        #loadAct = contextMenu.addAction("Load")
+        #nodeAct = contextMenu.addAction("New Node")
+        p1 = event.screenPos()
+        ps = QPoint(p1.x(), p1.y())
+        action = contextMenu2.exec_(ps)
+        if action == portAct:
+            print("port context")
+
+    def mousePressEvent(self, event):
+        super(BasePort, self).mousePressEvent(event)
 
 class OutputPort(BasePort):
 
@@ -461,7 +571,29 @@ class OutputPort(BasePort):
 
         self.setLabelItem(PortLabel(self, self._name, 10, self._labelColor, self._labelHighlightColor))
         self.setOutCircle(PortCircle(self, graph, 2, color, 'Out'))
+        self._supportsOnlySingleConnections = False
 
+    def addConnection(self, connection):
+        """Adds a connection to the list.
+        Arguments:
+        connection -- connection, new connection to add.
+        Return:
+        True if successful.
+        """
+
+        if self._supportsOnlySingleConnections and len(self.__connections) != 0:
+            # gather all the connections into a list, and then remove them from the graph.
+            # This is because we can't remove connections from ports while
+            # iterating over the set.
+            connections = []
+            for c in self.__connections:
+                connections.append(c)
+            for c in connections:
+                self._graph.removeConnection(c)
+
+        PortCircle.__connections.add(connection)
+
+        return True
 
 
 class IOPort(BasePort):
@@ -481,6 +613,8 @@ class GlandPort(BasePort):
         super(GlandPort, self).__init__(parent, graph, name, color, dataType, 'Gland')
 
         self.setInCircle(PortCircle(self, graph, -2, color, 'Gland'))
-        self.setLabelItem(PortLabel(self, self._name, 0, self._labelColor, self._labelHighlightColor))
+        pl = PortLabel(self, self._name, 0, self._labelColor, self._labelHighlightColor)
+        pl.setPos(QPointF(-20, -10))
+        self.setLabelItem(pl)
 
 

@@ -4,7 +4,7 @@
 import sys
 from random import random
 
-from PySide2.QtCore import Qt, QByteArray, QDataStream, QIODevice, QMimeData, QRect, QRectF
+from PySide2.QtCore import Qt, QByteArray, QDataStream, QIODevice, QMimeData, QRect, QRectF, QPointF
 # from PySide2.Qt import QString
 from PySide2.QtGui import QKeySequence, QFont
 
@@ -182,12 +182,37 @@ class TableWidgetCustom(QTableWidget, QTableWidgetItem):
 
         f.close()
 
+    def contextMenuEvent(self, event):
+        contextMenu = QMenu(self)
+        saveAct = contextMenu.addAction("Save")
+        loadAct = contextMenu.addAction("Load")
+        nodeAct = contextMenu.addAction("New Node")
+        action = contextMenu.exec_(self.mapToGlobal(event.pos()))
+        if action == saveAct:
+            self.save()
+        if action == loadAct:
+            self.restore()
+        if action == nodeAct:
+            m = MainWindow.clsSelf[0]
+            MainWindow.pb1_clicked(m)
+
+
+    def mousePressEvent(self, QMouseEvent):
+        if QMouseEvent.button() == Qt.RightButton:
+            # do what you want here
+            print("Right Button Clicked")
+            self.contextMenuEvent(QMouseEvent)
+
+        super(TableWidgetCustom, self).mousePressEvent(QMouseEvent)
+
+
     def h3_table_right_click(self, position):
         o_h3_table = H3TableHandler(parent=self)
         o_h3_table.right_click()
 
 
 class MainWindow(QMainWindow, TableWidgetCustom):
+    clsSelf = []
     def __init__(self, e=None):
         super().__init__()
 
@@ -249,7 +274,7 @@ class MainWindow(QMainWindow, TableWidgetCustom):
         # self.nodeInfoWidget.setEditTriggers(QAbstractItemView.AllEditTriggers)
         self.nodeInfoWidget.setSelectionBehavior(QAbstractItemView.SelectItems)
         self.nodeInfoWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        self.nodeInfoWidget.setColumnCount(12)
+        self.nodeInfoWidget.setColumnCount(13)
         self.nodeInfoWidget.setRowCount(20)
         self.nodeInfoWidget.setGeometry(500, 0, 400, 600)
         """
@@ -261,7 +286,7 @@ class MainWindow(QMainWindow, TableWidgetCustom):
                 item.setTextAlignment(Qt.AlignHCenter)
         """
         self.nodeInfoWidget.setWindowTitle("Node Termination Map")
-        self.nodeInfoWidget.setHorizontalHeaderLabels((("x;y;TermName;TermNum;SeqNum;Node;SeqNum;TermNum;TermName;x;y").split(";")))
+        self.nodeInfoWidget.setHorizontalHeaderLabels((("x;y;TermName;TermNum;SeqNum;Node;SeqNum;TermNum;TermName;x;y;width;height").split(";")))
         self.nodeInfoWidget.restore()
 
         # self.restore()
@@ -287,18 +312,20 @@ class MainWindow(QMainWindow, TableWidgetCustom):
         graph.addNode(node1)
 
 
-        node1 = Node(graph, 'Short2', xSize=200, ySize=200)
-        node1.addPort(InputPort(node1, graph, 'InPort1', QtGui.QColor(128, 170, 170, 255), dataType='Terminals'), x=0, y=20)
-        node1.addPort(InputPort(node1, graph, 'InPort2', QtGui.QColor(128, 170, 170, 255), dataType='Terminals'), x=0, y=40)
-        node1.addPort(InputPort(node1, graph, 'InPort3', QtGui.QColor(128, 170, 170, 255), dataType='Terminals'), x=0, y=60)
-        node1.addPort(InputPort(node1, graph, 'InPort4', QtGui.QColor(128, 170, 170, 255), dataType='Terminals'), x=0, y=80)
+        node2 = Node(graph, 'Short2', xSize=200, ySize=200)
+        node2.addPort(InputPort(node2, graph, 'InPort1', QtGui.QColor(128, 170, 170, 255), dataType='Terminals'), x=0, y=20)
+        node2.addPort(InputPort(node2, graph, 'InPort2', QtGui.QColor(128, 170, 170, 255), dataType='Terminals'), x=0, y=40)
+        node2.addPort(InputPort(node2, graph, 'InPort3', QtGui.QColor(128, 170, 170, 255), dataType='Terminals'), x=0, y=60)
+        node2.addPort(InputPort(node2, graph, 'InPort4', QtGui.QColor(128, 170, 170, 255), dataType='Terminals'), x=0, y=80)
 
-        node1.addPort(OutputPort(node1, graph, 'OutPort1', QtGui.QColor(128, 170, 170, 255), dataType='Terminals'), x=85, y=20)
-        node1.addPort(OutputPort(node1, graph, 'OutPort2', QtGui.QColor(128, 170, 170, 255), dataType='Terminals'), x=85, y=40)
-        node1.addPort(OutputPort(node1, graph, 'OutPort3', QtGui.QColor(128, 170, 170, 255), dataType='Terminals'), x=85, y=60)
-        node1.addPort(OutputPort(node1, graph, 'OutPort4', QtGui.QColor(128, 170, 170, 255), dataType='Terminals'), x=85, y=80)
-        node1.setPos(400, 0)
-        graph.addNode(node1)
+        node2.addPort(OutputPort(node2, graph, 'OutPort1', QtGui.QColor(128, 170, 170, 255), dataType='Terminals'), x=85, y=20)
+        node2.addPort(OutputPort(node2, graph, 'OutPort2', QtGui.QColor(128, 170, 170, 255), dataType='Terminals'), x=85, y=40)
+        node2.addPort(OutputPort(node2, graph, 'OutPort3', QtGui.QColor(128, 170, 170, 255), dataType='Terminals'), x=85, y=60)
+        node2.addPort(OutputPort(node2, graph, 'OutPort4', QtGui.QColor(128, 170, 170, 255), dataType='Terminals'), x=85, y=80)
+        node2.setPos(400, 0)
+        graph.addNode(node2)
+
+        graph.connectPorts(node1, "OutPort1", node2, "InPort2")
 
 
         #node1.addPort(InputPort(node1, graph, 'InPort2', QtGui.QColor(128, 170, 170, 255), 'MyDataX', 0,40))
@@ -321,15 +348,51 @@ class MainWindow(QMainWindow, TableWidgetCustom):
 
         graph.addNode(node2)
         graph.connectPorts(node1, 'OutPort', node2, 'InPort1')'''
-
-
+        self.graph = graph
+        self.clsSelf.append(self)
         widget.setGraphView(graph)
         widget.setGeometry(QRect(100,100,1500,1000))
         widget.show()
 
 
     def pb1_clicked(self):
-        pass
+        t = self.clsSelf[0].nodeInfoWidget
+        self = self.clsSelf[0]
+        #t = self.nodeInfoWidget
+        width = int(t.item(0, 11).text())
+        height = int(t.item(0, 12).text())
+        nodeName = t.item(0, 5).text()
+        x = int(t.item(0, 9).text())
+        y = int(t.item(0, 10).text())
+        node1name = str(int(random() * 10000)).zfill(5)
+        node1 = Node(self.graph, node1name, xSize=width, ySize=height)
+        node1.setPos(QPointF(x, y))
+        #node1.addPort(InputPort(node1, self.graph, 'GlandIn', QtGui.QColor(128, 170, 170, 255), dataType='Gland'), x=-100, y=20)
+        #node1.addPort(OutputPort(node1, self.graph, 'GlaGlandOutndOut', QtGui.QColor(128, 170, 170, 255), dataType='Gland'), x=60 + width / 2, y=20)
+        for row in range(1, t.rowCount()):  # TODO - how many rows/columns to get
+            xl = int(t.item(row, 0).text())
+            yl = int(t.item(row, 1).text())
+            namel = t.item(row, 2).text()
+            numl = t.item(row, 3).text()
+            seqNuml = t.item(row, 4).text()
+            nodeName = t.item(row, 5).text()
+            seqNumr = t.item(row, 6).text()
+            numr = t.item(row, 7).text()
+            namer = t.item(row, 8).text()
+            xr = int(t.item(row, 9).text())
+            yr = int(t.item(row, 10).text())
+            width = int(t.item(row, 11).text())
+            height = int(t.item(row, 12).text())
+            print("width, height", width, height)
+            if xl != 0 and yl != 0:
+                label = 'I' + str(row).zfill(2)
+                node1.addPort(InputPort(node1, self.graph, label, QtGui.QColor(128, 170, 170, 255), dataType='Terminals'), x=xl, y=yl)
+
+            if xr != 0 and yr != 0:
+                label = 'O' + str(row).zfill(2)
+                node1.addPort(OutputPort(node1, self.graph, label, QtGui.QColor(128, 170, 170, 255), dataType='Terminals'), x=xr, y=yr)
+
+        self.graph.addNode(node1)
 
     def pb2_clicked(self):
         pass
